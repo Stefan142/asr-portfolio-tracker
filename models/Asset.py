@@ -12,6 +12,8 @@ class Asset:
         self.asset_class = asset_class
         self.quantity = [quantity]
         self.purchase_price = [purchase_price]
+        # This suffices. We use daily data, so constant updating not required.
+        self.current_value = self.calculate_current_value()
 
     def buy_more(self, quantity, price) -> None:
         self.quantity.append(quantity)
@@ -24,7 +26,7 @@ class Asset:
         """Total cost when bought"""
         return [quantity*price for quantity, price in zip(self.quantity, self.purchase_price)]
 
-    def current_value(self) -> float:
+    def calculate_current_value(self) -> float:
         """Most recent market value"""
         return sum(self.quantity) * self.last_price()
 
