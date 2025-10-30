@@ -190,7 +190,7 @@ class Controller:
                 print(f"\n{purchase_price} is not numeric, please provide numeric value.\n")     
         
         if self.portfolio.check_if_present(ticker):
-            self.portfolio[ticker].buy_or_sell(quantity, purchase_price)
+            self.portfolio[ticker].buy(quantity, purchase_price)
         else:
             self.portfolio.add_new_asset(
                 Asset(ticker, sector, asset_class, quantity, purchase_price),
