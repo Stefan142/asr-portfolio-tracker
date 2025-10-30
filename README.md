@@ -1,8 +1,6 @@
 # ASR Portfolio Tracker
 
 ## Table of Contents
-
- 
 - [ASR Portfolio Tracker](#asr-portfolio-tracker)
   - [Table of Contents](#table-of-contents)
   - [Requirements and Installation](#requirements-and-installation)
@@ -11,7 +9,7 @@
     - [Delete](#delete)
     - [Show](#show)
     - [Graph](#graph)
-  - [Assumptions](#assumptions)
+  - [Assumptions and Notes](#assumptions-and-notes)
 
 ## Requirements and Installation
 
@@ -31,13 +29,13 @@ View the README for instructions. C^ (CTRL + C) at any point to quit.
 Provide a Command (ADD/DELETE/SHOW/GRAPH): 
 ```
 
-The tool provides questions to the user to which the user should answer to use the tool. The first one is a command on what general operation should be performed. This is one of these ADD/DELETE/SHOW/GRAPH.
+The tool provides questions to the user, which the user should answer to use the tool. The first one is a command on what general operation should be performed. This is one of these ADD/DELETE/SHOW/GRAPH.
 
 Each one of the four operations will be discussed below.
 
 ### Add
 
-Be aware **The tester of this applications purposefully typed Whoops to display error messages after inputs**
+Be aware **The tester of this applications purposefully typed Whoops to display error messages after inputs**.
 The following inputs are required 1 by 1 from the user:
 - Ticker: A ticker available on Yahoo Finance
 - Asset Class: A valid Asset Class, incorect input will print the available options which may be entered when prompting is being done again.
@@ -45,7 +43,7 @@ The following inputs are required 1 by 1 from the user:
 - Quantity: A valid positive integer.
 - Purchase Price: The purchase price **per unit**
 
-The successfull message indicates the Asset has been added to the portfolio.
+The successfull message indicates that the Asset has been added to the portfolio.
 
 Note, the user may add the same asset multiple times, The quantity and purchase price for all subsequent calls will be stored and will counts towards the total in the portfolio. To add the same ticker twice just follow the same steps again.
 
@@ -85,7 +83,7 @@ In the next iteration we see a successfull delete.
 
 The input this operation asks is:
 
-- Ticker: Ticker from an asset.
+- Ticker: Ticker for an asset.
 
 **Example session:**
 
@@ -103,7 +101,7 @@ Ticker deleted
 
 ### Show
 
-Show has two options. It either prints the summary, containing information on the portfolio such as transactions and values, And another options which prints weights or relative weights. Error messages are dynamic here as well so for the brevity of the screeenshots I will leave thhese out.
+The Show function has two options. It can either print a summary containing information on the portfolio, such as transactions, values, long names, etc., or it can print the weights or relative weights. Error messages are dynamic, as with the ADD operation, so I will leave these out.
 
 - Summary table
 
@@ -120,7 +118,7 @@ Table (Summary or Weights): summary
 | TLT    | iShares 20+ Year Treasury Bond ETF | Other                  | Fixed Income| 10       | 50.0           | 500               | 905.95        |
 ```
 
--  Weights table: See example usage blow. Here we see that the sector Information Technology takes up 0.664 or 66.4\% of the total portfolio, we calculate the relative weights w.r.t. to the Information Technology allocation. For other options please provide other inputs to **By Asset Class** and/or **By Sector**.
+-  Weights table: See example usage below. Here we see that the Information Technology sector takes up 0.664 or 66.4\% of the total portfolio, thereafter the relative weights w.r.t. to the Information Technology allocation are calculated and displayed. For other options please provide other inputs to **By Asset Class** and/or **By Sector**.
 
 **Example session:**
 
@@ -141,7 +139,7 @@ Information Technology portfolio weights
 
 ### Graph
 
-Graph has three options: Individual Assets/Portfolio/Monte Carlo. Individual Assets is the only one independent of the state of the portfolio.
+Graph has three options: Individual Assets/Portfolio/Monte Carlo. Individual Assets is the only one independent of the state of the portfolio. In the text box below, I perform two examples.
 
 **Example session:**
 
@@ -169,15 +167,15 @@ Monte Carlo graph written to graphs/Monte Carlo.png
 ```
  I will explain the non intuitive inputs:
 
-- End date: This date is taken as the end date of historical data and will be the starting point for a monte carlo simulation in the monte carlo case. If None is used, The tool takes the most recent, available date.
+- End date: This date is taken as the end date of the historical data and would be the starting point for a monte carlo simulation. If None is used, The tool takes the most recent, available date.
 - Asset tickers: Any number of tickers may be chained together using commas like in the text box above. Spaces are fine, however these are postprocessed. Hence, input similar to the example above is preferred.
-- In the Monte Carlo case you have the option to also plot a filtered portfolio. This works similarly for the Portfolio graph option and the Weights Table described in Show.
+- In the Monte Carlo case you have the option to also plot a filtered portfolio. This works similarly for the Portfolio graph option and the Weights Table described in [Show](#show).
 
-The plots created in this example are placed in the graphs folder.
+The plots created in this example can be found in the graphs folder.
 
 
 
-## Assumptions
+## Assumptions and Notes
 
 1. First code specifications: I used type hints and numpy docstrings and tried to conform to a relative extent to pep8. I used an adjusted max width however of 100 for code and 70 for docstrings.
 2. When I take historical data of a portfolio, I assume continuous rebalancing. So across the time series, weights stay the same.
@@ -186,4 +184,6 @@ The plots created in this example are placed in the graphs folder.
 
     $dS_t = \mu S_t \, dt + \sigma S_t \, dW_t$
 4. In the Monte Carlo simulation I plot 20 realizations and I plot a few quantiles as well together with the history.
+5. I tried to cover edge cases as much as possible but w.r.t. to the deadline and my availability, I didn't cover **everything**.
 ---
+
