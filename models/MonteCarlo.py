@@ -28,7 +28,7 @@ class MonteCarlo:
             endDate: str,
             n: int=100000,
             months: int=12*15,
-    ) -> Tuple[pd.DataFrame, np.typing.NDArray[np.float64], pd.DatetimeIndex]:
+    ) -> Tuple[pd.DataFrame, np._typing.NDArray[np.float64], pd.DatetimeIndex]:
         """
         Simulates the paths of a Monte Carlo simulation.
 

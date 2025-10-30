@@ -1,6 +1,7 @@
 from models.Portfolio import Portfolio
 from models.Asset import Asset
 from models.MonteCarlo import MonteCarlo
+from typing import Optional
 import yfinance as yf
 import matplotlib.pyplot as plt
 import math
@@ -10,21 +11,63 @@ import os
 
 
 class Viewer:
+    """
+    A Class which saves and/or prints visualisations.
+
+    Parameters
+    ----------
+    portfolio: models.Portfolio
+        An object which stores information and can calulate
+        information on the portfolio.
+    
+    Attributes
+    ----------
+    portfolio: models.Portfolio
+        Saved from the constructor
+    """
     def __init__(self, portfolio: Portfolio):
         self.portfolio = portfolio
 
-    def create_individual_asset_graphs(self, name, assets, Date1, date2=None):
-        marketData = yf.download(assets, start=Date1, end=date2, progress=False, auto_adjust=False)
+    def create_individual_asset_graphs(
+            self,
+            name: str,
+            assets: list[str],
+            date1: str,
+            date2: Optional[str]=None,
+    ) -> None:
+        """
+        Creates graphs of individual assets on a grid from Date1 until
+        Date2. Plots are saved to the "graphs" folder.
+
+        Parameters
+        ----------
+        name: str
+            Name of the file to be saved (excluding extension.)
+        assets: list[str]
+            A list of tickers.
+        date1: str
+            Starting date for the visualisations.
+        date2: Optional[str]
+            Ending date for the visualisations.
+            ("None" gives most recent)
+        
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        Saves to location graphs/{name}.png, prints to terminal.
+        Creates folder graphs if it doesn't exist already.
+        """
+        marketData = yf.download(assets, start=date1, end=date2, progress=False, auto_adjust=False)
         marketData = marketData["Close"]
-
+        
         n_assets = len(assets)
-
-        # Determine grid size (rows and columns) to make it as square as possible
+        # Determine grid size (rows and columns) to make it as "square" as possible
         cols = math.ceil(math.sqrt(n_assets))
         rows = math.ceil(n_assets / cols)
-
         fig, axes = plt.subplots(rows, cols, figsize=(5 * cols, 4 * rows))
-
         # Makes sure I only need to use one loop.
         axes = np.atleast_1d(axes).flatten()
 
@@ -36,21 +79,57 @@ class Viewer:
             ax.set_ylabel("Price")
             ax.grid(True)
 
-        # Remove unused subplots
+        # Removes unused subplots
         for j in range(n_assets, len(axes)):
             fig.delaxes(axes[j])
 
         plt.tight_layout(h_pad=1, w_pad=1)
         save_path = os.path.join("graphs", f"{name}.png")
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         fig.savefig(save_path)
         plt.close(fig)
         print(f"Individual graphs written to graphs/{name}.png")
-    
-    
-    def create_portfolio_graph(self, restrictions, name, date1, date2=None):
+ 
+    def create_portfolio_graph(
+            self,
+            restrictions: Optional[dict[str, str]],
+            name: str,
+            date1: str,
+            date2: Optional[str]=None,
+    ) -> None:
+        """
+        Creates a graph of the NAV of the portfolio. Assumes
+        continuous rebalancing (weights stay the same). 
+        Saves the plot to the "graphs" folder
+
+        Parameters
+        ----------
+        restrictions: Optional[dict[str, str]]
+            To filter the portfolio by. e.g. asset class and/or sector.
+        name: str
+            Name for the to be saved file (excluding extension).
+        date1: str
+            starting date for the data.
+        date2: str
+            ending date for the data. ("None" gives most recent).
+        
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        Saves a file to graphs/{name}.png, prints to terminal.
+        Creates folder graphs if it doesn't exist already.
+        """
         portfolio_p = self.portfolio.get_portfolio_prices(restrictions, date1, date2)
         plt.figure(figsize=(10,5))
-        plt.plot(portfolio_p.index, portfolio_p["Portfolio Price"], label="Portfolio NAV", linewidth=2)
+        plt.plot(
+            portfolio_p.index,
+            portfolio_p["Portfolio Price"],
+            label="Portfolio NAV",
+            linewidth=2,
+        )
         if restrictions is None:
             title = ""
         else:
@@ -62,10 +141,50 @@ class Viewer:
         plt.legend()
         plt.tight_layout()
         save_path = os.path.join("graphs", f"{name}.png")
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path)
         print(f"Portfolio NAV graph written to graphs/{name}.png")
     
-    def create_monte_carlo_graph(self, restrictions, name, startDate, endDate=None, n=100000, months=12*15):
+    def create_monte_carlo_graph(
+            self,
+            restrictions: Optional[dict[str, str]],
+            name: str,
+            startDate: str,
+            endDate: Optional[str]=None,
+            n: int=100000,
+            months: int=12*15,
+    ) -> None:
+        """
+        Creates a graph including historical data and Monte Carlo
+        Simulations (20 realizations + quantiles) and saves them to
+        the graphs folder.
+
+        Parameters
+        ----------
+        restrictions: Optional[dict[str, str]]
+            To filter the portfolio by. e.g. asset class and/or sector.
+        name: str
+            Name of the file to be saved. (excluding extension)
+        startDate: str
+            starting date for the historical data.
+        endDate: str
+            ending date for the historical data
+            ("None" gives most recent). Also the starting point for
+            the Monte Carlo simulations
+        n: int
+            Number of simulations (max 100000 min 1)
+        months: int
+            Number of months per simulation.
+        
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        Saves a file to graphs/{name}.png, prints to terminal.
+        Creates folder graphs if it doesn't exist already.
+        """
         montecarlo = MonteCarlo(self.portfolio)
         history, sims, future_index = montecarlo.simulate_paths(restrictions, startDate, endDate, n=n, months=months)
 
@@ -108,12 +227,22 @@ class Viewer:
         plt.close()
         print(f"Monte Carlo graph written to graphs/{name}.png")
 
+    def display_summary(self) -> None:
+        """
+        Prints the portfolio to the terminal as a table.
 
+        Parameters
+        ----------
+        None
 
+        Returns
+        -------
+        None
 
-
-    
-    def display_summary(self):
+        Notes
+        -----
+        Prints to the terminal.
+        """
         assets = self.portfolio.assets.values()
         df = pd.DataFrame(
             {
@@ -141,7 +270,25 @@ class Viewer:
         print()
         print(df.to_markdown(index=False, tablefmt="pipe"))
     
-    def display_weights(self, restrictions=None):
+    def display_weights(self, restrictions: Optional[dict[str, str]]=None) -> None:
+        """
+        Prints the weight of the filtered portfolio w.r.t. total
+        portfolio and prints weights of the filtered portfolio to
+        the terminal in a table.
+
+        Parameters
+        ----------
+        restrictions: Optional[dict[str, str]]
+            To filter the portfolio by e.g. asset class and/or sector.
+        
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        prints to the terminal.
+        """
         weights, class_sector_value, total = self.portfolio.get_portfolio_weights(restrictions)
         tickers = []
         weight_p_asset = []
