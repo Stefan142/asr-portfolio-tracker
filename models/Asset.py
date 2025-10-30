@@ -14,15 +14,16 @@ class Asset:
         self.purchase_price = [purchase_price]
         # This suffices. We use daily data, so constant updating not required.
         self.current_value = self.calculate_current_value()
+        self.transaction_values = self.calculate_transaction_values()
 
-    def buy_more(self, quantity, price) -> None:
+    def buy_or_sell(self, quantity, price) -> None:
         self.quantity.append(quantity)
         self.purchase_price.append(price)
 
     def last_price(self) -> float:
         return yf.Ticker(self.ticker).fast_info.get("lastPrice", "No Last Price Found")
 
-    def transaction_values(self) -> list[float]:
+    def calculate_transaction_values(self) -> list[float]:
         """Total cost when bought"""
         return [quantity*price for quantity, price in zip(self.quantity, self.purchase_price)]
 
@@ -35,12 +36,6 @@ class Asset:
         return sum(
             [
                 last_price*quantity - transaction
-                for transaction, quantity in zip(self.transaction_values(), self.quantity)
+                for transaction, quantity in zip(self.transaction_values, self.quantity)
             ],
         )
-
-    def retrieve_marketdata(self, date):
-        marketdata = yf.download(self.ticker, start=date)
-        marketdata = marketdata[["Close"]]
-        marketdata.columns = marketdata.columns.droplevel(['Ticker'])
-        return marketdata
