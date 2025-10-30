@@ -157,4 +157,9 @@ class Portfolio:
             del self.assets[ticker]
             print("Ticker deleted")
         else:
-            print("Ticker not in portfolio, so no deletion.")
+            collection_of_assets = ""
+            for asset in self.assets:
+                collection_of_assets += asset + " "
+            if len(collection_of_assets) > 0:
+                collection_of_assets = "Delete options: " + collection_of_assets
+            print(f"Ticker not in portfolio, so no deletion.\n{collection_of_assets}")

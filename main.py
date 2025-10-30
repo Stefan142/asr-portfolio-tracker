@@ -1,17 +1,16 @@
 from controllers.controller import Controller
 import warnings
 
-warnings.filterwarnings("ignore", category=FutureWarning)
-
 def main():
     """
     Entry point for the CLI Portfolio Tracker.
     Initializes MVC components and runs the command loop.
     """
-    controller = Controller()
+    warnings.filterwarnings("ignore", category=FutureWarning)
 
+    controller = Controller()
     print("a.s.r. Portfolio Tracker")
-    print("Type 'exit' to quit., view the README for instructions.")
+    print("View the README for instructions. C^ (CTRL + C) at any point to quit.")
 
     while True:
         try:

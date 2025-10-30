@@ -14,9 +14,9 @@ class Asset:
         Sector of the asset.
     asset Class: str
         Asset Class of the asset.
-    quantity int:
+    quantity: int
         The quantity of the asset to hold.
-    purchase_price int:
+    purchase_price: float
         The purchase price of the asset.
 
     Attributes:
@@ -31,8 +31,12 @@ class Asset:
         Stored from the constructor.
     quantity: list[int]
         Transformed the quantity from the constructor to a list.
-    purchase_price: list[int]
+    purchase_price: list[float]
         Transformed the purchase price from the constructor to a list.
+    current_value: float
+        Current value of holdings in the asset.
+    transaction_value: float
+        The value of all transactions combined.
     """
     def __init__(
             self,
@@ -53,7 +57,7 @@ class Asset:
         self.purchase_price = [purchase_price]
         # This suffices. We use daily data, so constant updating not required.
         self.current_value = self.calculate_current_value()
-        self.transaction_values = self.calculate_transaction_values()
+        self.transaction_value = quantity*purchase_price
 
     def buy(self, quantity: int, price: float) -> None:
         """
@@ -74,10 +78,12 @@ class Asset:
 
         Notes
         -----
-        Asjusts self.quantity and self.purchase_price.
+        Asjusts self.quantity, self.purchase_price, .
         """
         self.quantity.append(quantity)
         self.purchase_price.append(price)
+        self.transaction_value += quantity*price
+        self.current_value += quantity*self.last_price()
 
     def last_price(self) -> float:
         """
@@ -98,21 +104,6 @@ class Asset:
         Prints to the terminal if the ticker does not exist.
         """
         return yf.Ticker(self.ticker).fast_info.get("lastPrice", "No Last Price Found")
-
-    def calculate_transaction_values(self) -> list[float]:
-        """
-        Total cost of the transaction: quantity * purchase_price
-        
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        list[float]
-            A list of all the transaction costs for the asset.
-        """
-        return [quantity*price for quantity, price in zip(self.quantity, self.purchase_price)]
 
     def calculate_current_value(self) -> float:
         """

@@ -5,6 +5,8 @@ from datetime import datetime as dt
 from typing import Optional
 import yfinance as yf
 import sys
+import contextlib
+import io
 
 
 class Controller:
@@ -136,8 +138,12 @@ class Controller:
         while True:
             try:
                 ticker = input("Ticker: ")
-                # I need some way to check if ticker exists
-                int(yf.Ticker(ticker).fast_info["lastPrice"])
+                # I need some way to check if ticker exists and not print to terminal.
+                with (
+                    contextlib.redirect_stdout(io.StringIO()),
+                    contextlib.redirect_stderr(io.StringIO()),
+                ):
+                    _ = int(yf.Ticker(ticker).fast_info["lastPrice"])
                 break
             except KeyboardInterrupt:
                 print("\n\nGoodbye!\n")
@@ -177,7 +183,7 @@ class Controller:
                 print("\n\nGoodbye!\n")
                 sys.exit(0)
             except:
-                print(f"\n{quantity} is not numeric, please provide numeric value.\n")
+                print(f"\ninput is not numeric, please provide numeric value.\n")
 
         while True:
             try:
@@ -187,10 +193,10 @@ class Controller:
                 print("\n\nGoodbye!\n")
                 sys.exit(0)
             except:
-                print(f"\n{purchase_price} is not numeric, please provide numeric value.\n")     
+                print(f"purchase_price is not numeric, please provide numeric value.\n")     
         
         if self.portfolio.check_if_present(ticker):
-            self.portfolio[ticker].buy(quantity, purchase_price)
+            self.portfolio.assets[ticker].buy(quantity, purchase_price)
         else:
             self.portfolio.add_new_asset(
                 Asset(ticker, sector, asset_class, quantity, purchase_price),
@@ -322,7 +328,11 @@ class Controller:
                     if not isinstance(assets, list):
                         assets = [assets]
                     for asset in assets:
-                        int(yf.Ticker(asset).fast_info["lastPrice"])
+                        with (
+                            contextlib.redirect_stdout(io.StringIO()),
+                            contextlib.redirect_stderr(io.StringIO()),
+                        ):
+                            _ = int(yf.Ticker(asset).fast_info["lastPrice"])
                     break
                 except KeyboardInterrupt:
                     print("\n\nGoodbye!\n")

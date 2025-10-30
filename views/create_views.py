@@ -259,11 +259,7 @@ class Viewer:
                     asset.purchase_price[0]
                     if len(asset.purchase_price) == 1 else asset.purchase_price
                     for asset in assets],
-                "Transaction Value": [
-                    asset.transaction_values[0]
-                    if len(asset.transaction_values) == 1
-                    else asset.transaction_values for asset in assets
-                ],
+                "Transaction Value": [asset.transaction_value for asset in assets],
                 "Current Value": [asset.current_value for asset in assets],
             },
         )
