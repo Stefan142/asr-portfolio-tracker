@@ -1,13 +1,60 @@
+from models.Portfolio import Portfolio
+from typing import Optional, Tuple
 import yfinance as yf
 import numpy as np
 import pandas as pd
 
-
 class MonteCarlo:
-    def __init__(self, portfolio):
+    """
+    Performs the Monte Carlo simulation.
+
+    Parameters
+    ----------
+    portfolio: models.Portfolio
+        A class which stores the portfolio state and information.
+    
+    Attributes
+    ----------
+    portfolio: models.Portfolio
+        Stored from the constructor.
+    """
+    def __init__(self, portfolio: Portfolio):
         self.portfolio = portfolio
 
-    def simulate_paths(self, restrictions, startDate, endDate, n=100000, months=12*15):
+    def simulate_paths(
+            self,
+            restrictions: Optional[dict[str, str]],
+            startDate: str,
+            endDate: str,
+            n: int=100000,
+            months: int=12*15,
+    ) -> Tuple[pd.DataFrame, np.typing.NDArray[np.float64], pd.DatetimeIndex]:
+        """
+        Simulates the paths of a Monte Carlo simulation.
+
+        Parameters
+        ----------
+        restrictions: Optional[dict[str,str]]
+            A dictionary containing wheter the simulation should be
+            done for a particular asset class and/or sector.
+        startDate: str
+            Starting date for historical data.
+        endDate:
+            Ending date for historical data, and starting point
+            for the Monte Carlo simulation.
+        n: int
+            Number of simulations to perform.
+        months: int
+            The number of months to perform each simulation for.
+        
+        Returns
+        -------
+        Tuple[pd.DataFrame, np.typing.NDArray[np.float64], pd.DatetimeIndex]
+            A tuple containing the historical data between startDate
+            and endDate, The monte Carlo simulations (months*n matrix),
+            The dates for the monte carlo simulations. (Not done in 
+            pandas df to save memory.)
+        """
         portfolio_p = self.portfolio.get_portfolio_prices(restrictions, startDate, endDate)
         portfolio_month_p = portfolio_p.resample('ME').last() 
         log_returns = np.log(portfolio_p / portfolio_p.shift(1)).dropna()
